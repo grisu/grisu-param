@@ -14,7 +14,7 @@ import grisu.frontend.view.cli.GrisuCliClient;
 import grisu.jcommons.constants.Constants;
 import grisu.model.FileManager;
 
-public class Client extends GrisuCliClient<ExampleCliParameters> {
+public class Client extends GrisuCliClient<GrisuParamCliParameters> {
 
 	public static void main(String[] args) {
 
@@ -23,7 +23,7 @@ public class Client extends GrisuCliClient<ExampleCliParameters> {
 
 		// helps to parse commandline arguments, if you don't want to create
 		// your own parameter class, just use DefaultCliParameters
-		ExampleCliParameters params = new ExampleCliParameters();
+		GrisuParamCliParameters params = new GrisuParamCliParameters();
 		// create the client
 		Client client = null;
 		try {
@@ -43,7 +43,7 @@ public class Client extends GrisuCliClient<ExampleCliParameters> {
 
 	}
 
-	public Client(ExampleCliParameters params, String[] args) throws Exception {
+	public Client(GrisuParamCliParameters params, String[] args) throws Exception {
 		super(params, args);
 	}
 	
@@ -55,10 +55,20 @@ public class Client extends GrisuCliClient<ExampleCliParameters> {
 		String command = getCliParameters().getCommand();	
 		int wallTime = getCliParameters().getWallTime();
 		String jobName = getCliParameters().getJobName();
+		Boolean mpi = getCliParameters().getMpi();
+		Boolean single = getCliParameters().getSingle();
+		
 		if(jobName==null)
 			jobName="cat_job";
 		if(wallTime==0)
 			wallTime=60;
+		
+		if(mpi && single)
+		{
+			System.err.println("Cannot set job type to both mpi and single");
+			System.exit(1);
+		}
+			
 
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
@@ -90,6 +100,10 @@ public class Client extends GrisuCliClient<ExampleCliParameters> {
 				System.out.println(command+" " + filename);
 				job.addInputFileUrl(filename);
 				job.setWalltimeInSeconds(wallTime);
+				job.setForce_mpi(mpi);
+				job.setForce_single(single);
+				
+				System.out.println("jobtype: mpi-"+job.isForce_mpi()+" single-"+job.isForce_single());
 
 				job.setTimestampJobname(jobName+"_"+jobCount);
 
@@ -136,6 +150,7 @@ public class Client extends GrisuCliClient<ExampleCliParameters> {
 				jobCount++;
 			}
 			br.close();
+			
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (IOException e) {
