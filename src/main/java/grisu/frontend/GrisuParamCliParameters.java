@@ -4,8 +4,22 @@ import grisu.frontend.view.cli.GrisuCliParameters;
 
 import com.beust.jcommander.Parameter;
 
-public class ExampleCliParameters extends GrisuCliParameters {
+public class GrisuParamCliParameters extends GrisuCliParameters {
 
+	@Parameter(names = {"-mpi", "--mpi"}, description = "sets the job type to be mpi")
+	private boolean mpi;
+	
+	public Boolean getMpi(){
+		return mpi;
+	}
+
+	@Parameter(names = {"-single", "--single"}, description = "sets the job type to be single")
+	private boolean single;
+	
+	public Boolean getSingle(){
+		return single;
+	}
+	
 	@Parameter(names = {"-n", "--n"}, description = "the wall time for every job")
 	private String jobName;
 	
